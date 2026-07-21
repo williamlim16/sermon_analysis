@@ -1,0 +1,47 @@
+---
+interface Props {
+  reference: string;
+  theme?: 'dark' | 'light';
+}
+
+const { reference, theme = 'light' } = Astro.props;
+---
+
+<span class={`scripture-vis ${theme}`}>
+  <svg class="icon" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+  </svg>
+  {reference}
+</span>
+
+<style>
+  .scripture-vis {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    line-height: 1;
+    margin: 0 0.2em;
+    border: 1px solid transparent;
+  }
+  
+  .icon {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.3em;
+  }
+
+  .light {
+    background-color: #f3e8ff;
+    color: #6b21a8;
+    border-color: #e9d5ff;
+  }
+
+  .dark {
+    background-color: #1f2937;
+    color: #d8b4fe;
+    border-color: #374151;
+  }
+</style>
