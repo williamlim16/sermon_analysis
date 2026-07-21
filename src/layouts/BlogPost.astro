@@ -8,7 +8,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, speaker, themes } = Astro.props;
 ---
 
 <html lang="en">
@@ -30,14 +30,16 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				box-shadow: var(--box-shadow);
 			}
 			.prose {
-				width: 720px;
+				width: 960px;
 				max-width: calc(100% - 2em);
 				margin: auto;
-				padding: 1em;
+				padding: 2em 1em;
 				color: rgb(var(--gray-dark));
+				font-size: 1.1rem;
+				line-height: 1.8;
 			}
 			.title {
-				margin-bottom: 1em;
+				margin-bottom: 2em;
 				padding: 1em 0;
 				text-align: center;
 				line-height: 1;
@@ -48,6 +50,26 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.date {
 				margin-bottom: 0.5em;
 				color: rgb(var(--gray));
+			}
+			.metadata {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 0.5rem;
+				margin-bottom: 1.5em;
+			}
+			.themes {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 0.5rem;
+				margin-top: 0.5rem;
+			}
+			.theme {
+				padding: 0.25rem 0.75rem;
+				border-radius: 999px;
+				font-size: 0.85rem;
+				font-weight: 600;
 			}
 			.last-updated-on {
 				font-style: italic;
@@ -64,15 +86,50 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				</div>
 				<div class="prose">
 					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
+						<div class="metadata">
+							<div class="date">
+								<FormattedDate date={pubDate} />
+								{
+									updatedDate && (
+										<span class="last-updated-on">
+											(Last updated on <FormattedDate date={updatedDate} />)
+										</span>
+									)
+								}
+							</div>
+							{speaker && <div class="speaker"><strong>Speaker:</strong> {speaker}</div>}
+							
+							{themes && themes.length > 0 && (
+								<div class="themes">
+									{themes.map((theme: string) => {
+										// Simple hash for colors
+										let hash = 0;
+										for (let i = 0; i < theme.length; i++) {
+											hash = theme.charCodeAt(i) + ((hash << 5) - hash);
+										}
+										const colors = [
+											{ bg: '#fee2e2', text: '#991b1b' },
+											{ bg: '#ffedd5', text: '#9a3412' },
+											{ bg: '#fef3c7', text: '#92400e' },
+											{ bg: '#dcfce7', text: '#166534' },
+											{ bg: '#ccfbf1', text: '#115e59' },
+											{ bg: '#dbeafe', text: '#1e40af' },
+											{ bg: '#e0e7ff', text: '#3730a3' },
+											{ bg: '#fae8ff', text: '#86198f' },
+											{ bg: '#fce7f3', text: '#9d174d' },
+										];
+										const color = colors[Math.abs(hash) % colors.length];
+										return (
+											<span 
+												class="theme" 
+												style={`background-color: ${color.bg}; color: ${color.text};`}
+											>
+												{theme}
+											</span>
+										);
+									})}
+								</div>
+							)}
 						</div>
 						<h1>{title}</h1>
 						<hr />
