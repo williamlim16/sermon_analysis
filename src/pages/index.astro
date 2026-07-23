@@ -1,15 +1,15 @@
 ---
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
+import { db } from '../db';
+import { sermons } from '../db/schema';
+import { desc } from 'drizzle-orm';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const posts = await db.select().from(sermons).orderBy(desc(sermons.pubDate));
 
 const themeColors = [
 	{ bg: '#fee2e2', text: '#991b1b' }, // red
@@ -125,23 +125,20 @@ function getThemeColor(theme: string) {
 						posts.map((post) => (
 							<li>
 								<a href={`/blog/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
+									<h4 class="title">{post.title || post.fileName}</h4>
 									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
+										<FormattedDate date={post.pubDate} />
 									</p>
-									{post.data.themes && post.data.themes.length > 0 && (
+									{post.theme && post.theme.length > 0 && (
 										<div class="themes">
-											{post.data.themes.map((theme) => {
-												const color = getThemeColor(theme);
+											{post.theme.map((t) => {
+												const color = getThemeColor(t);
 												return (
 													<span 
 														class="theme" 
 														style={`background-color: ${color.bg}; color: ${color.text};`}
 													>
-														{theme}
+														{t}
 													</span>
 												);
 											})}

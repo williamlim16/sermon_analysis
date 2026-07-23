@@ -1,20 +1,172 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
+import { db } from '../../db';
+import { sermons } from '../../db/schema';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { marked } from 'marked';
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
+	const allPosts = await db.select().from(sermons);
+	return allPosts.map((post) => ({
+		params: { slug: post.id.toString() },
 		props: post,
 	}));
 }
-type Props = CollectionEntry<'blog'>;
+type Props = typeof sermons.$inferSelect;
 
 const post = Astro.props;
-const { Content } = await render(post);
+let mdContent = '';
+if (Array.isArray(post.sections)) {
+	mdContent = post.sections.map((s: any) => (s.type === 'outline' || s.type === 'conclusion' ? `### ${s.type.charAt(0).toUpperCase() + s.type.slice(1)}\n\n` : '') + s.content).join('\n\n');
+} else if (typeof post.sections === 'string') {
+	mdContent = post.sections;
+}
+
+const Content = await marked.parse(mdContent);
 ---
 
-<BlogPost {...post.data}>
-	<Content />
+<BlogPost 
+	title={post.title || post.fileName || 'Untitled'} 
+	description={post.speaker ? `Speaker: ${post.speaker}` : ''} 
+	pubDate={post.pubDate} 
+	speaker={post.speaker} 
+	themes={post.theme}
+>
+	<article class="prose" set:html={Content} />
 </BlogPost>
+
+<style is:global>
+	.prose {
+		max-width: 65ch;
+		margin: 0 auto;
+		color: #334155;
+		line-height: 1.7;
+		font-size: 1.125rem;
+		padding: 0; /* Removed extra padding since layout already has it */
+	}
+
+	/* Distinct badge style for the top "Outline" or "Conclusion" tags */
+	.prose > h3:first-child {
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: #475569; /* Slate text */
+		margin-bottom: 1rem;
+		margin-top: 0.5rem;
+		display: inline-block;
+		background: #f1f5f9; /* Slate 100 bg */
+		padding: 0.35rem 0.85rem;
+		border-radius: 6px; /* slightly squarer, neat badge */
+		border: 1px solid #e2e8f0;
+	}
+	
+	/* Style the main title right below the outline badge */
+	.prose > h3:first-child + h1,
+	.prose > h3:first-child + h2 {
+		margin-top: 0;
+		padding-bottom: 1.25rem;
+		border-bottom: 2px solid #e2e8f0;
+		margin-bottom: 1.5rem;
+		line-height: 1.3;
+		font-size: 1.5em; /* Smaller text size for Sermon Outline */
+		color: #1e293b;
+	}
+
+	/* General Headings */
+	.prose h1, .prose h2, .prose h3, .prose h4 {
+		color: #0f172a;
+		font-weight: 700;
+		line-height: 1.3;
+	}
+	.prose h1 { font-size: 2em; margin-top: 1.5em; margin-bottom: 0.75em; }
+	.prose h2 { font-size: 1.5em; margin-top: 1.5em; margin-bottom: 0.75em; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.3em; }
+	.prose h3 { font-size: 1.25em; margin-top: 1.25em; margin-bottom: 0.75em; }
+	
+	.prose p {
+		margin-top: 1em;
+		margin-bottom: 1em;
+	}
+	
+	/* Bullet points and lists - tightened and neat */
+	.prose ul, .prose ol {
+		margin-top: 0.75em;
+		margin-bottom: 1.25em;
+		padding-left: 1.25em;
+	}
+	.prose li {
+		margin-top: 0.25em;
+		margin-bottom: 0.25em;
+	}
+	.prose li::marker {
+		color: #64748b;
+	}
+	.prose li > ul, .prose li > ol {
+		margin-top: 0.25em;
+		margin-bottom: 0.25em;
+	}
+	/* Prevent double spacing when markdown wraps list text in <p> */
+	.prose li > p {
+		margin-top: 0.25em;
+		margin-bottom: 0.25em;
+	}
+
+	.prose a {
+		color: #2563eb;
+		text-decoration: none;
+		border-bottom: 1px solid transparent;
+		transition: border-color 0.2s ease;
+	}
+	.prose a:hover {
+		border-bottom-color: #2563eb;
+	}
+	.prose blockquote {
+		font-style: italic;
+		color: #475569;
+		border-left: 4px solid #cbd5e1;
+		padding-left: 1.25rem;
+		margin-left: 0;
+		margin-right: 0;
+		background: #f8fafc;
+		padding: 1rem 1.25rem;
+		border-radius: 0 0.5rem 0.5rem 0;
+	}
+	.prose code {
+		background-color: #f1f5f9;
+		color: #db2777;
+		padding: 0.2em 0.4em;
+		border-radius: 0.25rem;
+		font-size: 0.875em;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	}
+	.prose pre {
+		background-color: #1e293b;
+		color: #f8fafc;
+		padding: 1.25rem;
+		border-radius: 0.75rem;
+		overflow-x: auto;
+		margin-top: 1.5em;
+		margin-bottom: 1.5em;
+	}
+	.prose pre code {
+		background-color: transparent;
+		color: inherit;
+		padding: 0;
+	}
+	.prose strong {
+		color: #0f172a;
+		font-weight: 600;
+	}
+	.prose img {
+		max-width: 100%;
+		height: auto;
+		border-radius: 0.75rem;
+		margin-top: 2em;
+		margin-bottom: 2em;
+		box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	}
+	.prose hr {
+		border: 0;
+		border-top: 1px solid #e2e8f0;
+		margin: 1.5em 0; /* Reduced from 3em to fix spacing below the main page title */
+	}
+</style>
