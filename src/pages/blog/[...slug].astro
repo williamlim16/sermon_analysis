@@ -16,9 +16,16 @@ type Props = typeof sermons.$inferSelect;
 const post = Astro.props;
 let mdContent = '';
 if (Array.isArray(post.sections)) {
-	mdContent = post.sections.map((s: any) => (s.type === 'outline' || s.type === 'conclusion' ? `### ${s.type.charAt(0).toUpperCase() + s.type.slice(1)}\n\n` : '') + s.content).join('\n\n');
+	mdContent = post.sections.map((s: any) => {
+		let content = s.content || '';
+		if (typeof content === 'string') {
+			// Fix literal "\n" strings from DB and inline list dashes missing newlines
+			content = content.replace(/\\n/g, '\n').replace(/\. - /g, '.\n- ');
+		}
+		return (s.type === 'outline' || s.type === 'conclusion' ? `### ${s.type.charAt(0).toUpperCase() + s.type.slice(1)}\n\n` : '') + content;
+	}).join('\n\n');
 } else if (typeof post.sections === 'string') {
-	mdContent = post.sections;
+	mdContent = post.sections.replace(/\\n/g, '\n').replace(/\. - /g, '.\n- ');
 }
 
 const Content = await marked.parse(mdContent);
