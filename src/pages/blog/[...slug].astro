@@ -87,27 +87,50 @@ const Content = await marked.parse(mdContent);
 		margin-bottom: 1em;
 	}
 	
-	/* Bullet points and lists - tightened and neat */
+	/* Compact, skimmable lists for concise outlines */
 	.prose ul, .prose ol {
-		margin-top: 0.75em;
-		margin-bottom: 1.25em;
-		padding-left: 1.25em;
+		list-style: none;
+		padding: 0;
+		margin-top: 0.75rem;
+		margin-bottom: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem; /* Tight spacing */
 	}
 	.prose li {
-		margin-top: 0.25em;
-		margin-bottom: 0.25em;
+		position: relative;
+		padding: 0 0 0 1.25rem;
+		margin: 0;
+		font-size: 1rem; /* Slightly smaller for quick scanning */
+		line-height: 1.4;
+		color: #475569; /* Slate 600 for less visual weight */
+		background: none;
+		border: none;
+		box-shadow: none;
 	}
-	.prose li::marker {
-		color: #64748b;
+	.prose li:hover {
+		box-shadow: none;
+		transform: none;
+	}
+	/* Minimal bullet dot */
+	.prose li::before {
+		content: "•";
+		position: absolute;
+		left: 0;
+		top: -0.1rem;
+		color: #94a3b8;
+		font-size: 1.25rem;
 	}
 	.prose li > ul, .prose li > ol {
-		margin-top: 0.25em;
-		margin-bottom: 0.25em;
+		margin-top: 0.35rem;
+		margin-bottom: 0;
 	}
 	/* Prevent double spacing when markdown wraps list text in <p> */
 	.prose li > p {
-		margin-top: 0.25em;
-		margin-bottom: 0.25em;
+		margin: 0;
+	}
+	.prose li > p + p {
+		margin-top: 0.5rem;
 	}
 
 	.prose a {
