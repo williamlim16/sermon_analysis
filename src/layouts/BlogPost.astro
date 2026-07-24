@@ -13,10 +13,11 @@ interface Props {
 	updatedDate?: Date;
 	heroImage?: string | null;
 	speaker?: string | null;
+	church?: string | null;
 	themes?: string[] | null;
 }
 
-const { title, description, pubDate, updatedDate, heroImage, speaker, themes } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, speaker, church, themes } = Astro.props;
 ---
 
 <html lang="en">
@@ -106,6 +107,7 @@ const { title, description, pubDate, updatedDate, heroImage, speaker, themes } =
 								}
 							</div>
 							{speaker && <div class="speaker"><strong>Speaker:</strong> {speaker}</div>}
+							{church && <div class="church" style="color: #555; font-size: 0.95em;"><strong>Church:</strong> {church}</div>}
 							
 							{themes && themes.length > 0 && (
 								<div class="themes">

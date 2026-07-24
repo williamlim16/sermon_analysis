@@ -36,6 +36,7 @@ const Content = await marked.parse(mdContent);
 	description={post.speaker ? `Speaker: ${post.speaker}` : ''} 
 	pubDate={post.pubDate} 
 	speaker={post.speaker} 
+	church={post.church}
 	themes={post.theme}
 >
 	<article class="prose" set:html={Content} />

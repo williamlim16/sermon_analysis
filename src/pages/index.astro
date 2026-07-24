@@ -126,6 +126,8 @@ function getThemeColor(theme: string) {
 							<li>
 								<a href={`/blog/${post.id}/`}>
 									<h4 class="title">{post.title || post.fileName}</h4>
+									{post.church && <p class="church" style="margin: 0; color: #555; font-size: 0.9rem; font-weight: 500;">{post.church}</p>}
+									{post.speaker && <p class="speaker" style="margin: 0 0 0.5rem 0; color: #777; font-size: 0.85rem;">{post.speaker}</p>}
 									<p class="date">
 										<FormattedDate date={post.pubDate} />
 									</p>
