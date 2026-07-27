@@ -9,8 +9,8 @@ import Header from '../components/Header.astro';
 interface Props {
 	title: string;
 	description?: string;
-	pubDate: Date;
-	updatedDate?: Date;
+	pubDate?: Date | string | null;
+	updatedDate?: Date | string | null;
 	heroImage?: string | null;
 	speaker?: string | null;
 	church?: string | null;
