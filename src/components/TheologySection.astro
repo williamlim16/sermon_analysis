@@ -1,0 +1,391 @@
+---
+import { marked } from 'marked';
+
+interface Props {
+  sections: Array<{ type: string; content?: string }>;
+}
+
+const { sections = [] } = Astro.props;
+
+if (!sections || sections.length === 0) {
+  return null;
+}
+
+const rawContent = sections.map((s) => {
+  let c = s.content || '';
+  if (typeof c === 'string') {
+    c = c.replace(/\\n/g, '\n').replace(/\. - /g, '.\n- ');
+  }
+  return c;
+}).join('\n\n');
+
+const htmlContent = await marked.parse(rawContent);
+const sectionId = 'theology-exp-' + Math.floor(Math.random() * 100000);
+---
+
+<div class="theology-card">
+  <div class="theology-header" role="button" tabindex="0" aria-expanded="false" aria-controls={sectionId}>
+    <div class="header-left">
+      <div class="badge-icon-wrap">
+        <span class="theology-badge">
+          <svg class="badge-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z" fill="currentColor"/>
+          </svg>
+          THEOLOGY
+        </span>
+      </div>
+      <div class="title-group">
+        <h3 class="theology-title">Theological Analysis & Doctrine</h3>
+        <p class="theology-subtitle">Click to expand doctrinal framework & commentary</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button type="button" class="toggle-btn" aria-expanded="false" aria-controls={sectionId} tabindex="-1">
+        <span class="btn-text">Expand Explanation</span>
+        <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="theology-content-wrapper" id={sectionId} role="region" aria-labelledby="theology-title">
+    <div class="theology-content-inner">
+      <div class="theology-prose" set:html={htmlContent} />
+    </div>
+  </div>
+</div>
+
+<script>
+  function setupTheologyToggles() {
+    const cards = document.querySelectorAll('.theology-card');
+    cards.forEach((card) => {
+      if (card.hasAttribute('data-initialized')) return;
+      card.setAttribute('data-initialized', 'true');
+
+      const header = card.querySelector('.theology-header');
+      const btnText = card.querySelector('.btn-text');
+      const btn = card.querySelector('.toggle-btn');
+      const wrapper = card.querySelector('.theology-content-wrapper');
+
+      if (!header || !btnText || !btn || !wrapper) return;
+
+      const toggleExplanation = () => {
+        const isExpanded = card.classList.toggle('is-expanded');
+        btn.setAttribute('aria-expanded', isExpanded.toString());
+        header.setAttribute('aria-expanded', isExpanded.toString());
+        if (isExpanded) {
+          btnText.textContent = 'Collapse Explanation';
+        } else {
+          btnText.textContent = 'Expand Explanation';
+        }
+      };
+
+      header.addEventListener('click', toggleExplanation);
+      header.addEventListener('keydown', (e) => {
+        const keyEvent = e as KeyboardEvent;
+        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+          keyEvent.preventDefault();
+          toggleExplanation();
+        }
+      });
+    });
+  }
+
+  // Run on initial load
+  setupTheologyToggles();
+
+  // Support Astro view transitions or navigation
+  document.addEventListener('astro:after-swap', setupTheologyToggles);
+  document.addEventListener('astro:page-load', setupTheologyToggles);
+</script>
+
+<style>
+  .theology-card {
+    margin: 2rem 0;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 5px solid #4f46e5;
+    box-shadow: 
+      0 4px 6px -1px rgba(15, 23, 42, 0.05),
+      0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+    transition: all 0.25s ease;
+  }
+
+  .theology-card:hover {
+    box-shadow: 
+      0 10px 15px -3px rgba(15, 23, 42, 0.08),
+      0 4px 6px -4px rgba(15, 23, 42, 0.05);
+    border-color: #94a3b8;
+    border-left-color: #4338ca;
+  }
+
+  .theology-header {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    cursor: pointer;
+    background: linear-gradient(to right, #f1f5f9, #e0e7ff);
+    transition: background 0.2s ease;
+    user-select: none;
+    outline: none;
+  }
+
+  .theology-header:focus-visible {
+    box-shadow: inset 0 0 0 2px #4f46e5;
+  }
+
+  .theology-header:hover {
+    background: linear-gradient(to right, #e2e8f0, #dbeafe);
+  }
+
+  .theology-card.is-expanded .theology-header {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: 1;
+  }
+
+  .badge-icon-wrap {
+    display: flex;
+    align-items: center;
+  }
+
+  .theology-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #4f46e5;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    border: 1px solid #4338ca;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+  }
+
+  .badge-icon {
+    width: 0.85rem;
+    height: 0.85rem;
+    color: #e0e7ff;
+  }
+
+  .title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .theology-title {
+    color: #0f172a !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.01em;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+  }
+
+  .theology-subtitle {
+    color: #475569 !important;
+    font-size: 0.875rem !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .toggle-btn {
+    background: #ffffff;
+    color: #1e40af;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #bfdbfe;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+  }
+
+  .theology-header:hover .toggle-btn,
+  .toggle-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  }
+
+  .chevron-icon {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .theology-card.is-expanded .chevron-icon {
+    transform: rotate(180deg);
+  }
+
+  .theology-card.is-expanded .toggle-btn {
+    background: #1e40af;
+    color: #ffffff;
+    border-color: #1e3a8a;
+  }
+
+  .theology-content-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    opacity: 0;
+  }
+
+  .theology-card.is-expanded .theology-content-wrapper {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .theology-content-inner {
+    overflow: hidden;
+  }
+
+  .theology-prose {
+    padding: 1.75rem 2rem 2rem 2rem;
+    background: #ffffff;
+    color: #334155;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+
+  .theology-prose :global(h1),
+  .theology-prose :global(h2),
+  .theology-prose :global(h3),
+  .theology-prose :global(h4) {
+    color: #1e3a8a !important;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.3em;
+  }
+
+  .theology-prose :global(h3:first-child),
+  .theology-prose :global(h2:first-child),
+  .theology-prose :global(h1:first-child) {
+    margin-top: 0;
+  }
+
+  .theology-prose :global(p) {
+    color: #334155;
+    margin-bottom: 1.25em;
+    margin-top: 0;
+  }
+
+  .theology-prose :global(ul),
+  .theology-prose :global(ol) {
+    list-style: none;
+    padding: 0 0 0 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .theology-prose :global(li) {
+    position: relative;
+    padding: 0 0 0 1.5rem;
+    margin: 0;
+    color: #475569;
+    line-height: 1.5;
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .theology-prose :global(li::before) {
+    content: "•";
+    position: absolute;
+    left: 0.25rem;
+    top: -0.05rem;
+    color: #4f46e5;
+    font-size: 1.25rem;
+  }
+
+  .theology-prose :global(li > p) {
+    margin: 0;
+  }
+
+  .theology-prose :global(strong),
+  .theology-prose :global(b) {
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  .theology-prose :global(a) {
+    color: #2563eb;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .theology-prose :global(a:hover) {
+    border-bottom-color: #2563eb;
+  }
+
+  .theology-prose :global(blockquote) {
+    border-left: 4px solid #6366f1;
+    background: #f8fafc;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    color: #475569;
+    font-style: italic;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .theology-prose :global(code) {
+    background: #f1f5f9;
+    color: #db2777;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.875em;
+  }
+
+  @media (max-width: 640px) {
+    .theology-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem;
+    }
+    .header-right {
+      width: 100%;
+    }
+    .toggle-btn {
+      width: 100%;
+      justify-content: center;
+    }
+    .theology-prose {
+      padding: 1.25rem 1.25rem 1.5rem 1.25rem;
+    }
+  }
+</style>

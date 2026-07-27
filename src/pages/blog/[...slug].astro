@@ -2,6 +2,7 @@
 import { db } from '../../db';
 import { sermons } from '../../db/schema';
 import BlogPost from '../../layouts/BlogPost.astro';
+import TheologySection from '../../components/TheologySection.astro';
 import { marked } from 'marked';
 
 export async function getStaticPaths() {
@@ -14,21 +15,36 @@ export async function getStaticPaths() {
 type Props = typeof sermons.$inferSelect;
 
 const post = Astro.props;
-let mdContent = '';
+let outlineHtml = '';
+let theologySections: any[] = [];
+let otherHtml = '';
+
 if (Array.isArray(post.sections)) {
-	mdContent = post.sections.map((s: any) => {
+	const outlines = post.sections.filter((s: any) => s.type === 'outline');
+	theologySections = post.sections.filter((s: any) => s.type === 'theology');
+	const others = post.sections.filter((s: any) => s.type !== 'outline' && s.type !== 'theology');
+
+	const formatSection = (s: any) => {
 		let content = s.content || '';
 		if (typeof content === 'string') {
 			// Fix literal "\n" strings from DB and inline list dashes missing newlines
 			content = content.replace(/\\n/g, '\n').replace(/\. - /g, '.\n- ');
 		}
 		return (s.type === 'outline' || s.type === 'conclusion' ? `### ${s.type.charAt(0).toUpperCase() + s.type.slice(1)}\n\n` : '') + content;
-	}).join('\n\n');
-} else if (typeof post.sections === 'string') {
-	mdContent = post.sections.replace(/\\n/g, '\n').replace(/\. - /g, '.\n- ');
-}
+	};
 
-const Content = await marked.parse(mdContent);
+	if (outlines.length > 0) {
+		const outlineMd = outlines.map(formatSection).join('\n\n');
+		outlineHtml = await marked.parse(outlineMd);
+	}
+	if (others.length > 0) {
+		const othersMd = others.map(formatSection).join('\n\n');
+		otherHtml = await marked.parse(othersMd);
+	}
+} else if (typeof post.sections === 'string') {
+	const mdContent = post.sections.replace(/\\n/g, '\n').replace(/\. - /g, '.\n- ');
+	otherHtml = await marked.parse(mdContent);
+}
 ---
 
 <BlogPost 
@@ -39,7 +55,11 @@ const Content = await marked.parse(mdContent);
 	church={post.church}
 	themes={post.theme}
 >
-	<article class="prose" set:html={Content} />
+	<article class="prose">
+		{outlineHtml && <Fragment set:html={outlineHtml} />}
+		{theologySections.length > 0 && <TheologySection sections={theologySections} />}
+		{otherHtml && <Fragment set:html={otherHtml} />}
+	</article>
 </BlogPost>
 
 <style is:global>
