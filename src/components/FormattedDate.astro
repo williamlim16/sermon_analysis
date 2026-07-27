@@ -1,17 +1,28 @@
 ---
 interface Props {
-	date: Date;
+	date?: Date | string | null;
 }
 
-const { date } = Astro.props;
+let { date } = Astro.props;
+if (!date) {
+	date = new Date();
+}
+
+let dateObj: Date;
+if (typeof date === 'string') {
+	dateObj = new Date(date.includes('T') ? date : `${date}T12:00:00Z`);
+} else {
+	dateObj = date;
+}
 ---
 
-<time datetime={date.toISOString()}>
+<time datetime={dateObj.toISOString()}>
 	{
-		date.toLocaleDateString('en-us', {
+		dateObj.toLocaleDateString('en-us', {
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
+			timeZone: 'UTC',
 		})
 	}
 </time>
