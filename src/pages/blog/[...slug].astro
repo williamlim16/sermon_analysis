@@ -50,7 +50,7 @@ if (Array.isArray(post.sections)) {
 <BlogPost 
 	title={post.title || post.fileName || 'Untitled'} 
 	description={post.speaker ? `Speaker: ${post.speaker}` : ''} 
-	pubDate={post.pubDate} 
+	pubDate={post.date || post.pubDate} 
 	speaker={post.speaker} 
 	church={post.church}
 	themes={post.theme}

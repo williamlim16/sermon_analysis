@@ -9,7 +9,7 @@ import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
-const posts = await db.select().from(sermons).orderBy(desc(sermons.pubDate));
+const posts = await db.select().from(sermons).orderBy(desc(sermons.date));
 
 const themeColors = [
 	{ bg: '#fee2e2', text: '#991b1b' }, // red
@@ -129,7 +129,7 @@ function getThemeColor(theme: string) {
 									{post.church && <p class="church" style="margin: 0; color: #555; font-size: 0.9rem; font-weight: 500;">{post.church}</p>}
 									{post.speaker && <p class="speaker" style="margin: 0 0 0.5rem 0; color: #777; font-size: 0.85rem;">{post.speaker}</p>}
 									<p class="date">
-										<FormattedDate date={post.pubDate} />
+										<FormattedDate date={post.date || post.pubDate} />
 									</p>
 									{post.theme && post.theme.length > 0 && (
 										<div class="themes">
