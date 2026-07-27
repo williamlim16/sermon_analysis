@@ -3,6 +3,7 @@ import { db } from '../../db';
 import { sermons } from '../../db/schema';
 import BlogPost from '../../layouts/BlogPost.astro';
 import TheologySection from '../../components/TheologySection.astro';
+import JudgementsSection from '../../components/JudgementsSection.astro';
 import { marked } from 'marked';
 
 export async function getStaticPaths() {
@@ -58,6 +59,7 @@ if (Array.isArray(post.sections)) {
 	<article class="prose">
 		{outlineHtml && <Fragment set:html={outlineHtml} />}
 		{theologySections.length > 0 && <TheologySection sections={theologySections} />}
+		{post.judgements && <JudgementsSection judgements={post.judgements} />}
 		{otherHtml && <Fragment set:html={otherHtml} />}
 	</article>
 </BlogPost>

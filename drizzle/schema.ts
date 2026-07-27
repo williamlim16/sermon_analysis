@@ -30,6 +30,7 @@ export const sermonsInStaging = staging.table("sermons", {
 	theme: jsonb().array(),
 	pubDate: timestamp("pub_date", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	church: text(),
+	judgements: jsonb(),
 }, (table) => [
 	unique("sermons_file_name_key").on(table.fileName),
 ]);
@@ -44,6 +45,7 @@ export const sermonsInProduction = production.table("sermons", {
 	theme: jsonb().array(),
 	pubDate: timestamp("pub_date", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	church: text(),
+	judgements: jsonb(),
 }, (table) => [
 	unique("sermons_file_name_key").on(table.fileName),
 ]);

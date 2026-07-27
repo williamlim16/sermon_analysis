@@ -32,6 +32,17 @@ export const posts = appSchema.table("posts", {
   fileName: text("file_name"),
 });
 
+export interface Judgement {
+  model: string;
+  score: number;
+  content: string;
+  summary?: string;
+  strengths?: string[];
+  detailed_evaluation?: string;
+  areas_for_improvement?: string[];
+  [key: string]: any;
+}
+
 export const sermons = appSchema.table("sermons", {
   id: serial("id").primaryKey().notNull(),
   fileName: text("file_name"),
@@ -42,6 +53,7 @@ export const sermons = appSchema.table("sermons", {
   theme: jsonb("theme").array(),
   pubDate: timestamp("pub_date", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
   church: text("church"),
+  judgements: jsonb("judgements").$type<Judgement[]>(),
 }, (table) => [
   unique("sermons_file_name_key").on(table.fileName),
 ]);

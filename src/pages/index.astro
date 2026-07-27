@@ -131,21 +131,47 @@ function getThemeColor(theme: string) {
 									<p class="date">
 										<FormattedDate date={post.date || post.pubDate} />
 									</p>
-									{post.theme && post.theme.length > 0 && (
-										<div class="themes">
-											{post.theme.map((t) => {
-												const color = getThemeColor(t);
-												return (
+									{(() => {
+										let jList = post.judgements as any[];
+										if (typeof jList === 'string') {
+											try { jList = JSON.parse(jList); } catch (e) { jList = []; }
+										}
+										const hasJ = Array.isArray(jList) && jList.length > 0;
+										const hasT = post.theme && post.theme.length > 0;
+										if (!hasJ && !hasT) return null;
+
+										let avg = null;
+										if (hasJ) {
+											const validScores = jList.filter(j => typeof j?.score === 'number').map(j => j.score);
+											if (validScores.length > 0) {
+												avg = (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(1);
+											}
+										}
+
+										return (
+											<div class="themes">
+												{hasJ && (
 													<span 
 														class="theme" 
-														style={`background-color: ${color.bg}; color: ${color.text};`}
+														style="background-color: #e0e7ff; color: #4f46e5; font-weight: 700;"
 													>
-														{t}
+														★ Score {avg || `${jList.length} reviews`}
 													</span>
-												);
-											})}
-										</div>
-									)}
+												)}
+												{hasT && post.theme.map((t) => {
+													const color = getThemeColor(t);
+													return (
+														<span 
+															class="theme" 
+															style={`background-color: ${color.bg}; color: ${color.text};`}
+														>
+															{t}
+														</span>
+													);
+												})}
+											</div>
+										);
+									})()}
 								</a>
 							</li>
 						))

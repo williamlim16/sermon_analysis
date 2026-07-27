@@ -15,6 +15,13 @@
       "when": 1784772666263,
       "tag": "0001_hot_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785138681268,
+      "tag": "0002_petite_serpent_society",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "staging"."sermons" ADD COLUMN "judgements" jsonb;
