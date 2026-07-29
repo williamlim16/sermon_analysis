@@ -156,5 +156,31 @@ const { title, description, pubDate, updatedDate, heroImage, speaker, church, th
 			</article>
 		</main>
 		<Footer />
+		
+		<!-- Faithlife RefTagger - Auto-links Bible Verses -->
+		<script is:inline>
+			var refTagger = {
+				settings: {
+					bibleVersion: "ESV",
+					roundCorners: true,
+					socialSharing: [],
+					customStyle: {
+						heading: {
+							color: "#202020",
+							fontFamily: "sans-serif"
+						},
+						body: {
+							color: "#333333",
+							fontFamily: "sans-serif"
+						}
+					}
+				}
+			};
+			(function(d, t) {
+				var g = d.createElement(t), s = d.getElementsByTagName(t)[0];
+				g.src = "//api.reftagger.com/v2/RefTagger.js";
+				s.parentNode.insertBefore(g, s);
+			}(document, "script"));
+		</script>
 	</body>
 </html>
